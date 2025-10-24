@@ -35,6 +35,9 @@ fun MyNavHost() {
                 },
                 onIsCompletedChange = { task ->
                     taskDao.update(task.mapToEntity())
+                },
+                onDelete = { task ->
+                    taskDao.delete(task.mapToEntity())
                 }
             )
         }
