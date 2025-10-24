@@ -50,6 +50,7 @@ fun TaskListScreen(
     taskList: List<Task>,
     onIsCompletedChange: (Task) -> Unit,
     navigateToAddTask: () -> Unit,
+    onDelete: (Task) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -86,7 +87,8 @@ fun TaskListScreen(
                     task = task,
                     onIsCompletedChange = { isCompleted ->
                         onIsCompletedChange(task.copy(isCompleted = isCompleted))
-                    }
+                    },
+                    onDelete = { onDelete(task) }
                 )
             }
         }
@@ -97,6 +99,7 @@ fun TaskListScreen(
 fun TaskItem(
     task: Task,
     onIsCompletedChange: (Boolean) -> Unit,
+    onDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
@@ -158,7 +161,7 @@ fun TaskItem(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 imageVector = Icons.Filled.Delete,
-                                contentDescription = "Edit Task",
+                                contentDescription = "Delete Task",
                                 tint = Color(0xFFF44336)
                             )
                             Spacer(Modifier.width(8.dp))
@@ -167,6 +170,7 @@ fun TaskItem(
                     },
                     onClick = {
                         menuExpanded = false
+                        onDelete()
                     }
                 )
             }
@@ -184,6 +188,7 @@ private fun TaskListScreenPreview() {
             Task(task = "Eat dinner")
         ),
         navigateToAddTask = {},
-        onIsCompletedChange = {}
+        onIsCompletedChange = {},
+        onDelete = {}
     )
 }
