@@ -1,4 +1,4 @@
-package com.example.taskcloud.ui.theme
+package com.example.taskcloud.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -9,9 +9,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.example.taskcloud.TaskEditorScreen
-import com.example.taskcloud.TaskListScreen
-import com.example.taskcloud.mapToEntity
+import com.example.taskcloud.database.ToDoListDatabase
+import com.example.taskcloud.database.entity.mapToTask
+import com.example.taskcloud.model.mapToEntity
+import com.example.taskcloud.ui.screens.TaskEditorScreen
+import com.example.taskcloud.ui.screens.TaskListScreen
 import kotlinx.serialization.Serializable
 
 @Composable

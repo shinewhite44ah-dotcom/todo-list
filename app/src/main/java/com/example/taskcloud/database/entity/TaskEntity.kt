@@ -1,8 +1,8 @@
-package com.example.taskcloud.ui.theme
+package com.example.taskcloud.database.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.example.taskcloud.Task
+import com.example.taskcloud.model.Task
 
 @Entity(tableName = "tasks")
 data class TaskEntity(

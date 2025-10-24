@@ -1,6 +1,6 @@
-package com.example.taskcloud
+package com.example.taskcloud.model
 
-import com.example.taskcloud.ui.theme.TaskEntity
+import com.example.taskcloud.database.entity.TaskEntity
 
 data class Task(
     val id: Long? = null,

@@ -1,4 +1,4 @@
-package com.example.taskcloud
+package com.example.taskcloud.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -42,6 +42,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.taskcloud.model.Task
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

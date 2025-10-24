@@ -1,10 +1,11 @@
-package com.example.taskcloud.ui.theme
+package com.example.taskcloud.database.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
+import com.example.taskcloud.database.entity.TaskEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao

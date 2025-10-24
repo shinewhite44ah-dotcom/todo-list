@@ -1,4 +1,4 @@
-package com.example.taskcloud
+package com.example.taskcloud.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
+import com.example.taskcloud.model.Task
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
