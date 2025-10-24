@@ -51,6 +51,7 @@ fun TaskListScreen(
     onIsCompletedChange: (Task) -> Unit,
     navigateToAddTask: () -> Unit,
     onDelete: (Task) -> Unit,
+    onEdit: (Task) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -88,7 +89,8 @@ fun TaskListScreen(
                     onIsCompletedChange = { isCompleted ->
                         onIsCompletedChange(task.copy(isCompleted = isCompleted))
                     },
-                    onDelete = { onDelete(task) }
+                    onDelete = { onDelete(task) },
+                    onEdit = { onEdit(task) }
                 )
             }
         }
@@ -100,6 +102,7 @@ fun TaskItem(
     task: Task,
     onIsCompletedChange: (Boolean) -> Unit,
     onDelete: () -> Unit,
+    onEdit: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
@@ -153,6 +156,7 @@ fun TaskItem(
                     },
                     onClick = {
                         menuExpanded = false
+                        onEdit()
                     }
                 )
 
@@ -189,6 +193,7 @@ private fun TaskListScreenPreview() {
         ),
         navigateToAddTask = {},
         onIsCompletedChange = {},
-        onDelete = {}
+        onDelete = {},
+        onEdit = {}
     )
 }

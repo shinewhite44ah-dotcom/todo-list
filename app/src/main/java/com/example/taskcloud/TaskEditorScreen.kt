@@ -27,31 +27,37 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddTaskScreen(
+fun TaskEditorScreen(
+    taskToEdit: Task?,
     onAddTask: (Task) -> Unit,
+    onEditTask: (Task) -> Unit,
     onBackClick: () -> Unit,
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
-                    Text("Add Task")
+                    if (taskToEdit != null) {
+                        Text("Edit Task")
+                    } else {
+                        Text("Add Task")
+                    }
                 },
                 navigationIcon = {
-
                         IconButton(onClick = { onBackClick() }) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Back"
                             )
                         }
-
                 }
             )
         }
     ) { innerPadding ->
         AddTaskContent(
+            taskToEdit = taskToEdit,
             onAddTask = { onAddTask(it) },
+            onEditTask = { onEditTask(it) },
             modifier = Modifier.padding(innerPadding)
         )
     }
@@ -59,10 +65,12 @@ fun AddTaskScreen(
 
 @Composable
 fun AddTaskContent(
+    taskToEdit: Task?,
     onAddTask: (Task) -> Unit,
+    onEditTask: (Task) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var task by remember { mutableStateOf("") }
+    var taskName by remember { mutableStateOf(taskToEdit?.task ?: "") }
 
     Column(
         modifier = modifier
@@ -72,8 +80,8 @@ fun AddTaskContent(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         OutlinedTextField(
-            value = task,
-            onValueChange = { task = it },
+            value = taskName,
+            onValueChange = { taskName = it },
             placeholder = {
                 Text(text = "Enter your task")
             },
@@ -83,10 +91,18 @@ fun AddTaskContent(
         )
         Button(
             onClick = {
-                onAddTask(Task(task = task))
+                if (taskToEdit != null) {
+                    onEditTask(taskToEdit.copy(task = taskName))
+                } else {
+                    onAddTask(Task(task = taskName))
+                }
             }
         ) {
-            Text(text = "Add new task")
+            if (taskToEdit != null) {
+                Text("Edit Task")
+            } else {
+                Text("Add new task")
+            }
         }
     }
 }
