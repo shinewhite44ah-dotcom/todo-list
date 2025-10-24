@@ -8,7 +8,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.taskcloud.AddTaskScreen
+import androidx.navigation.toRoute
+import com.example.taskcloud.TaskEditorScreen
 import com.example.taskcloud.TaskListScreen
 import com.example.taskcloud.mapToEntity
 import kotlinx.serialization.Serializable
@@ -26,25 +27,42 @@ fun MyNavHost() {
     NavHost(
         navController = navController,
         startDestination = TaskListRoute
-    ){
+    ) {
         composable<TaskListRoute> {
             TaskListScreen(
                 taskList = tasks.map { it.mapToTask() },
                 navigateToAddTask = {
-                    navController.navigate(AddTaskRoute)
+                    navController.navigate(TaskEditorRoute())
                 },
                 onIsCompletedChange = { task ->
                     taskDao.update(task.mapToEntity())
                 },
                 onDelete = { task ->
                     taskDao.delete(task.mapToEntity())
+                },
+                onEdit = { task ->
+                    navController.navigate(TaskEditorRoute(task.id))
                 }
             )
         }
-        composable<AddTaskRoute>{
-            AddTaskScreen(
+
+        composable<TaskEditorRoute> { entry ->
+            val taskToEditId = entry.toRoute<TaskEditorRoute>().taskToEditId
+
+            val taskToEdit = if (taskToEditId != null) {
+                taskDao.getTask(taskToEditId)?.mapToTask()
+            } else {
+                null
+            }
+
+            TaskEditorScreen(
+                taskToEdit = taskToEdit,
                 onAddTask = { task ->
                     taskDao.insert(task.mapToEntity())
+                    navController.popBackStack()
+                },
+                onEditTask = { task ->
+                    taskDao.update(task.mapToEntity())
                     navController.popBackStack()
                 },
                 onBackClick = {
@@ -60,4 +78,4 @@ fun MyNavHost() {
 data object TaskListRoute
 
 @Serializable
-data object AddTaskRoute
+data class TaskEditorRoute(val taskToEditId: Long? = null)
