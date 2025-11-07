@@ -1,4 +1,4 @@
-package com.example.taskcloud.ui.screens
+package com.example.taskcloud.ui.screens.tasklist
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,21 +39,41 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.taskcloud.model.Task
+
+@Composable
+fun TaskListScreen(
+    navigateToTaskEditor: (Task?) -> Unit,
+) {
+    val context = LocalContext.current
+
+    val viewModel: TaskListViewModel = viewModel(factory = TaskListViewModelFactory(context.applicationContext))
+
+    val tasks by viewModel.tasks.collectAsState()
+
+    TaskListScreen(
+        tasks = tasks,
+        onUpdate = { viewModel.updateTask(it) },
+        onDelete = { viewModel.deleteTask(it) },
+        navigateToEditTask = { navigateToTaskEditor(it) },
+        navigateToAddTask = { navigateToTaskEditor(null) }
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-
-fun TaskListScreen(
-    taskList: List<Task>,
-    onIsCompletedChange: (Task) -> Unit,
-    navigateToAddTask: () -> Unit,
+private fun TaskListScreen(
+    tasks: List<Task>,
+    onUpdate: (Task) -> Unit,
     onDelete: (Task) -> Unit,
-    onEdit: (Task) -> Unit,
+    navigateToEditTask: (Task) -> Unit,
+    navigateToAddTask: () -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -84,14 +105,14 @@ fun TaskListScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            items(taskList) { task ->
+            items(tasks) { task ->
                 TaskItem(
                     task = task,
                     onIsCompletedChange = { isCompleted ->
-                        onIsCompletedChange(task.copy(isCompleted = isCompleted))
+                        onUpdate(task.copy(isCompleted = isCompleted))
                     },
                     onDelete = { onDelete(task) },
-                    onEdit = { onEdit(task) }
+                    onEdit = { navigateToEditTask(task) }
                 )
             }
         }
@@ -99,7 +120,7 @@ fun TaskListScreen(
 }
 
 @Composable
-fun TaskItem(
+private fun TaskItem(
     task: Task,
     onIsCompletedChange: (Boolean) -> Unit,
     onDelete: () -> Unit,
@@ -187,14 +208,14 @@ fun TaskItem(
 @Composable
 private fun TaskListScreenPreview() {
     TaskListScreen(
-        taskList = listOf(
+        tasks = listOf(
             Task(task = "Go to gym"),
             Task(task = "Read book"),
             Task(task = "Eat dinner")
         ),
         navigateToAddTask = {},
-        onIsCompletedChange = {},
+        onUpdate = {},
         onDelete = {},
-        onEdit = {}
+        navigateToEditTask = {}
     )
 }

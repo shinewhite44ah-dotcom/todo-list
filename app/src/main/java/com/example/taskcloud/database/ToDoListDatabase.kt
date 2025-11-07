@@ -13,16 +13,21 @@ import com.example.taskcloud.database.entity.TaskEntity
 )
 abstract class ToDoListDatabase : RoomDatabase() {
 
-    abstract fun  taskDao(): TaskDao
+    abstract fun taskDao(): TaskDao
+
     companion object {
+        private var instance: ToDoListDatabase? = null
+
         fun createDatabase(context: Context): ToDoListDatabase {
-            return Room.databaseBuilder(
-                context,
-                ToDoListDatabase::class.java,
-                "TodoList-db"
-            )
-                .allowMainThreadQueries()
-                .build()
+            if (instance == null) {
+                instance = Room.databaseBuilder(
+                    context,
+                    ToDoListDatabase::class.java,
+                    "TodoList-db"
+                ).build()
+            }
+
+            return instance!!
         }
     }
 }

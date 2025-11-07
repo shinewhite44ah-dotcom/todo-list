@@ -1,13 +1,16 @@
-package com.example.taskcloud.ui.screens
+package com.example.taskcloud.ui.screens.taskeditor
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -22,45 +25,85 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.taskcloud.model.Task
+
+@Composable
+fun TaskEditorScreen(
+    taskToEditId: Long?,
+    onBackClick: () -> Unit,
+) {
+    val context = LocalContext.current
+
+    val viewModel: TaskEditorViewModel = viewModel(
+        factory = TaskEditorViewModelFactory(context.applicationContext, taskToEditId)
+    )
+
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    TaskEditorScreen(
+        uiState = uiState,
+        onAddTask = {
+            viewModel.addTask(it)
+            onBackClick()
+        },
+        onUpdateTask = {
+            viewModel.updateTask(it)
+            onBackClick()
+        },
+        onBackClick = onBackClick
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskEditorScreen(
-    taskToEdit: Task?,
+    uiState: TaskEditorUiState,
     onAddTask: (Task) -> Unit,
-    onEditTask: (Task) -> Unit,
+    onUpdateTask: (Task) -> Unit,
     onBackClick: () -> Unit,
 ) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    if (taskToEdit != null) {
-                        Text("Edit Task")
-                    } else {
-                        Text("Add Task")
-                    }
-                },
-                navigationIcon = {
-                        IconButton(onClick = { onBackClick() }) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back"
-                            )
-                        }
-                }
-            )
+    when (uiState) {
+        TaskEditorUiState.Loading -> {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
         }
-    ) { innerPadding ->
-        AddTaskContent(
-            taskToEdit = taskToEdit,
-            onAddTask = { onAddTask(it) },
-            onEditTask = { onEditTask(it) },
-            modifier = Modifier.padding(innerPadding)
-        )
+
+        is TaskEditorUiState.Success -> {
+            Scaffold(
+                topBar = {
+                    TopAppBar(
+                        title = {
+                            if (uiState.taskToEdit != null) {
+                                Text("Edit Task")
+                            } else {
+                                Text("Add Task")
+                            }
+                        },
+                        navigationIcon = {
+                            IconButton(onClick = { onBackClick() }) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "Back"
+                                )
+                            }
+                        }
+                    )
+                }
+            ) { innerPadding ->
+                AddTaskContent(
+                    taskToEdit = uiState.taskToEdit,
+                    onAddTask = { onAddTask(it) },
+                    onEditTask = { onUpdateTask(it) },
+                    modifier = Modifier.padding(innerPadding)
+                )
+            }
+        }
     }
 }
 
@@ -71,7 +114,7 @@ fun AddTaskContent(
     onEditTask: (Task) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var taskName by remember { mutableStateOf(taskToEdit?.task ?: "") }
+    var taskName by remember(taskToEdit) { mutableStateOf(taskToEdit?.task ?: "") }
 
     Column(
         modifier = modifier
