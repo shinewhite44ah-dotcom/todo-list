@@ -6,8 +6,9 @@ import com.example.taskcloud.model.Task
 import com.example.taskcloud.model.mapToEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
-class TaskRepositoryImpl(
+class TaskRepositoryImpl @Inject constructor(
     private val taskDao: TaskDao,
 ) : TaskRepository {
 

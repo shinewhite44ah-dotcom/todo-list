@@ -25,23 +25,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.taskcloud.model.Task
 
 @Composable
 fun TaskEditorScreen(
-    taskToEditId: Long?,
     onBackClick: () -> Unit,
 ) {
-    val context = LocalContext.current
-
-    val viewModel: TaskEditorViewModel = viewModel(
-        factory = TaskEditorViewModelFactory(context.applicationContext, taskToEditId)
-    )
+    val viewModel: TaskEditorViewModel = hiltViewModel()
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -140,7 +134,8 @@ fun AddTaskContent(
                 } else {
                     onAddTask(Task(task = taskName))
                 }
-            }
+            },
+            enabled = taskName.isNotBlank()
         ) {
             if (taskToEdit != null) {
                 Text("Edit Task")
