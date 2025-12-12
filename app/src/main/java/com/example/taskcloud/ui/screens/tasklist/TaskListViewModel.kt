@@ -18,15 +18,16 @@ class TaskListViewModel @Inject constructor(
     private val taskRepository: TaskRepository,
 ) : ViewModel() {
 
-    val tasks: StateFlow<List<Task>> =
+    val tasksMap: StateFlow<Map<LocalDate?, List<Task>>> =
         taskRepository.getTasks()
             .map { tasks ->
                 tasks.sortedBy { it.dueDate ?: LocalDate.MAX }
+                    .groupBy { it.dueDate }
             }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.Eagerly,
-                initialValue = emptyList()
+                initialValue = emptyMap()
             )
 
     fun updateTask(task: Task) {

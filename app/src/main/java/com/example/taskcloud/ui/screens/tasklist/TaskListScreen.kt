@@ -55,10 +55,10 @@ fun TaskListScreen(
 ) {
     val viewModel: TaskListViewModel = hiltViewModel()
 
-    val tasks by viewModel.tasks.collectAsState()
+    val tasksMap by viewModel.tasksMap.collectAsState()
 
     TaskListScreen(
-        tasks = tasks,
+        tasksMap = tasksMap,
         onUpdate = { viewModel.updateTask(it) },
         onDelete = { viewModel.deleteTask(it) },
         navigateToEditTask = { navigateToTaskEditor(it) },
@@ -69,7 +69,7 @@ fun TaskListScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TaskListScreen(
-    tasks: List<Task>,
+    tasksMap: Map<LocalDate?, List<Task>>,
     onUpdate: (Task) -> Unit,
     onDelete: (Task) -> Unit,
     navigateToEditTask: (Task) -> Unit,
@@ -108,17 +108,48 @@ private fun TaskListScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            items(tasks) { task ->
-                TaskItem(
-                    task = task,
-                    onIsCompletedChange = { isCompleted ->
-                        onUpdate(task.copy(isCompleted = isCompleted))
-                    },
-                    onDelete = { onDelete(task) },
-                    onEdit = { navigateToEditTask(task) }
-                )
+            tasksMap.forEach { (date, tasks) ->
+
+                stickyHeader { DateHeader(date) }
+
+                items(tasks) { task ->
+                    TaskItem(
+                        task = task,
+                        onIsCompletedChange = { isCompleted ->
+                            onUpdate(task.copy(isCompleted = isCompleted))
+                        },
+                        onDelete = { onDelete(task) },
+                        onEdit = { navigateToEditTask(task) }
+                    )
+                }
             }
         }
+    }
+}
+
+@Composable
+private fun DateHeader(
+    dueDate: LocalDate?
+) {
+    val today = remember { LocalDate.now() }
+
+    val backColor = if (dueDate != null && dueDate < today) {
+        MaterialTheme.colorScheme.error
+    } else {
+        Color(0xFF2196F3)
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(backColor, MaterialTheme.shapes.small)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        Text(
+            text = dueDate?.toString() ?: "No date",
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color.White
+        )
     }
 }
 
@@ -237,12 +268,15 @@ private fun TaskItem(
 @Composable
 private fun TaskListScreenPreview() {
     TaskCloudTheme {
-        TaskListScreen(
-            tasks = listOf(
+        val tasksMap = mapOf<LocalDate?, List<Task>>(
+            null to listOf(
                 Task(task = "Go to gym"),
                 Task(task = "Read book"),
                 Task(task = "Eat dinner")
-            ),
+            )
+        )
+        TaskListScreen(
+            tasksMap = tasksMap,
             navigateToAddTask = {},
             onUpdate = {},
             onDelete = {},
