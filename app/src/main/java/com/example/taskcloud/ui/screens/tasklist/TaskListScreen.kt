@@ -4,6 +4,7 @@ import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -46,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.taskcloud.model.Task
 import com.example.taskcloud.ui.theme.TaskCloudTheme
+import java.time.LocalDate
 
 @Composable
 fun TaskListScreen(
@@ -130,6 +132,14 @@ private fun TaskItem(
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
 
+    val today = remember { LocalDate.now() }
+
+    val dueDateColor = if (task.dueDate != null && task.dueDate < today) {
+        MaterialTheme.colorScheme.error
+    } else {
+        Color(0xFF666666)
+    }
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -143,13 +153,23 @@ private fun TaskItem(
             onCheckedChange = { onIsCompletedChange(it) },
         )
 
-        Text(
-            text = task.task,
-            style = MaterialTheme.typography.titleLarge,
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
-        )
+                .weight(1f),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = task.task,
+                style = MaterialTheme.typography.titleLarge,
+            )
+
+            Text(
+                text = task.dueDate?.toString() ?: "No date",
+                style = MaterialTheme.typography.bodyMedium,
+                color = dueDateColor
+            )
+        }
 
         Box {
             IconButton(onClick = { menuExpanded = true }) {

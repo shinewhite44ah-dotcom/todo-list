@@ -7,8 +7,10 @@ import com.example.taskcloud.model.Task
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -18,6 +20,9 @@ class TaskListViewModel @Inject constructor(
 
     val tasks: StateFlow<List<Task>> =
         taskRepository.getTasks()
+            .map { tasks ->
+                tasks.sortedBy { it.dueDate ?: LocalDate.MAX }
+            }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.Eagerly,

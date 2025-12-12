@@ -11,15 +11,21 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.getSelectedDate
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,10 +34,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.taskcloud.model.Task
+import com.example.taskcloud.ui.theme.TaskCloudTheme
 
 @Composable
 fun TaskEditorScreen(
@@ -108,6 +116,7 @@ fun TaskEditorScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddTaskContent(
     taskToEdit: Task?,
@@ -116,6 +125,10 @@ fun AddTaskContent(
     modifier: Modifier = Modifier
 ) {
     var taskName by remember(taskToEdit) { mutableStateOf(taskToEdit?.task ?: "") }
+
+    var showDatePickerDialog by remember { mutableStateOf(false) }
+
+    var selectedDate by remember(taskToEdit) { mutableStateOf(taskToEdit?.dueDate) }
 
     Column(
         modifier = modifier
@@ -134,15 +147,26 @@ fun AddTaskContent(
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
             modifier = Modifier.fillMaxWidth()
         )
+
+        OutlinedButton(
+            onClick = { showDatePickerDialog = true }
+        ) {
+            Text(
+                text = selectedDate?.toString() ?: "Select task date"
+            )
+        }
+
         Button(
             onClick = {
                 if (taskToEdit != null) {
-                    onEditTask(taskToEdit.copy(task = taskName))
+                    onEditTask(taskToEdit.copy(task = taskName, dueDate = selectedDate))
                 } else {
-                    onAddTask(Task(task = taskName))
+                    onAddTask(Task(task = taskName, dueDate = selectedDate))
                 }
             },
-            enabled = taskName.isNotBlank()
+            enabled = taskName.isNotBlank(),
+            shape = MaterialTheme.shapes.medium,
+            modifier = Modifier.fillMaxWidth()
         ) {
             if (taskToEdit != null) {
                 Text("Edit Task")
@@ -151,5 +175,44 @@ fun AddTaskContent(
             }
         }
     }
+
+    if (showDatePickerDialog) {
+        val datePickerState = rememberDatePickerState(initialSelectedDate = selectedDate)
+
+        DatePickerDialog(
+            onDismissRequest = { showDatePickerDialog = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        selectedDate = datePickerState.getSelectedDate()
+                        showDatePickerDialog = false
+                    }
+                ) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePickerDialog = false }) {
+                    Text("Cancel", color = MaterialTheme.colorScheme.error)
+                }
+            }
+        ) {
+            DatePicker(
+                state = datePickerState
+            )
+        }
+    }
 }
 
+@Preview
+@Composable
+private fun TaskEditorScreenPreview() {
+    TaskCloudTheme {
+        TaskEditorScreen(
+            uiState = TaskEditorUiState.Success(),
+            onAddTask = {},
+            onUpdateTask = {},
+            onBackClick = {},
+        )
+    }
+}
