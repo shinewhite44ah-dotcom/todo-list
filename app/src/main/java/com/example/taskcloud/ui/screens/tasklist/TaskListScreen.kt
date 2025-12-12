@@ -1,5 +1,6 @@
 package com.example.taskcloud.ui.screens.tasklist
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,6 +26,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -39,12 +41,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.taskcloud.model.Task
+import com.example.taskcloud.ui.theme.TaskCloudTheme
 
 @Composable
 fun TaskListScreen(
@@ -79,14 +80,16 @@ private fun TaskListScreen(
                     Text("Task List")
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFFE0E0E0),
-                    titleContentColor = Color.Black
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground
                 )
             )
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { navigateToAddTask() }
+                onClick = { navigateToAddTask() },
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
             ) {
                 Icon(
                     imageVector = Icons.Filled.Add,
@@ -94,7 +97,7 @@ private fun TaskListScreen(
                 )
             }
         },
-        containerColor = Color(0xFFE0E0E0)
+        containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -131,7 +134,7 @@ private fun TaskItem(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.surfaceContainer)
             .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -142,8 +145,7 @@ private fun TaskItem(
 
         Text(
             text = task.task,
-            fontWeight = FontWeight.Bold,
-            fontSize = 20.sp,
+            style = MaterialTheme.typography.titleLarge,
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
@@ -160,7 +162,7 @@ private fun TaskItem(
             DropdownMenu(
                 expanded = menuExpanded,
                 onDismissRequest = { menuExpanded = false },
-                containerColor = Color(0xFFE7E4E4)
+                containerColor = MaterialTheme.colorScheme.background
             ) {
                 DropdownMenuItem(
                     text = {
@@ -202,18 +204,29 @@ private fun TaskItem(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(
+    name = "Light Mode",
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_NO
+)
+@Preview(
+    name = "Dark Mode",
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
 @Composable
 private fun TaskListScreenPreview() {
-    TaskListScreen(
-        tasks = listOf(
-            Task(task = "Go to gym"),
-            Task(task = "Read book"),
-            Task(task = "Eat dinner")
-        ),
-        navigateToAddTask = {},
-        onUpdate = {},
-        onDelete = {},
-        navigateToEditTask = {}
-    )
+    TaskCloudTheme {
+        TaskListScreen(
+            tasks = listOf(
+                Task(task = "Go to gym"),
+                Task(task = "Read book"),
+                Task(task = "Eat dinner")
+            ),
+            navigateToAddTask = {},
+            onUpdate = {},
+            onDelete = {},
+            navigateToEditTask = {}
+        )
+    }
 }
